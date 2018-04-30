@@ -1,0 +1,48 @@
+{
+  "name": "Promise",
+  "version": "1.0.0",
+  "description": "write a promise polyfill",
+  "main": "lib/promise.js",
+  "jsnext:main": "src/index.js",
+  "scripts": {
+    "flow": "flow check",
+    "dev": "cross-env NODE_ENV=development rollup -c --watch",
+    "build:umd": "cross-env NODE_ENV=production rollup -c",
+    "build": "npm run flow&&npm run test&&npm run build:umd",
+    "test": "cross-env NODE_ENV=test jest"
+  },
+  "keywords": [
+    "Promise",
+    "polyfill"
+  ],
+  "author": "peakchen90 <1558267774@qq.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-jest": "^22.4.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "cross-env": "^5.1.4",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "flow-bin": "^0.71.0",
+    "jest": "^22.4.3",
+    "regenerator-runtime": "^0.11.1",
+    "rollup": "^0.58.2",
+    "rollup-plugin-babel": "^3.0.4",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  }
+}
