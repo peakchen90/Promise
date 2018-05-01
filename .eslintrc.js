@@ -8,8 +8,13 @@ module.exports = {
     browser: true,
     node: true
   },
-  extends: 'standard',
-  plugins: [],
+  extends: [
+    'standard',
+    "plugin:flowtype/recommended"
+  ],
+  plugins: [
+    "flowtype"
+  ],
   globals: {},
   'rules': {
     // allow paren-less arrow functions

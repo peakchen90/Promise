@@ -1,4 +1,4 @@
-/* @flow */
+// @flow
 import Promise from './Promise'
 
 export default Promise
