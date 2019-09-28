@@ -45,7 +45,8 @@
       "check-format",
       "allow-leading-underscore"
     ],
-    "member-access": false
+    "member-access": false,
+    "trailing-comma": false
   },
   "linterOptions": {
     "exclude": [
