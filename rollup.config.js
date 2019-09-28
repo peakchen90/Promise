@@ -1,26 +1,18 @@
-import resolve from 'rollup-plugin-node-resolve'
-import babel from 'rollup-plugin-babel'
-import uglify from 'rollup-plugin-uglify'
+const commonjs = require('rollup-plugin-commonjs');
+const typescript = require('rollup-plugin-typescript');
 
 const config = {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   output: {
     file: 'lib/promise.js',
     format: 'umd',
-    name: 'Promise'
+    name: 'Promise',
+    sourcemap: true
   },
   plugins: [
-    resolve(),
-    babel()
-  ],
-  watch: {
-    include: 'src/**',
-    exclude: 'node_modules/**'
-  }
-}
+    commonjs(),
+    typescript()
+  ]
+};
 
-if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(uglify())
-}
-
-export default config
+module.exports = config;

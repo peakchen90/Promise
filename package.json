@@ -3,43 +3,28 @@
   "version": "1.0.0",
   "description": "write a promise polyfill",
   "main": "lib/promise.js",
-  "jsnext:main": "src/index.js",
+  "module": "lib/promise.js",
   "scripts": {
-    "flow": "flow check",
-    "dev": "cross-env NODE_ENV=development rollup -c --watch",
-    "umd": "cross-env NODE_ENV=production rollup -c",
-    "build": "npm run flow&&npm run test&&npm run umd",
-    "test": "mocha"
+    "dev": "rollup --config rollup.config.js --watch",
+    "build": "rollup --config rollup.config.js",
+    "test": "npm run build && mocha"
   },
   "keywords": [
     "Promise",
     "polyfill"
   ],
   "author": "peakchen90 <1558267774@qq.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-flow": "^6.23.0",
-    "babel-preset-stage-2": "^6.24.1",
-    "babel-register": "^6.26.0",
-    "chai": "^4.1.2",
-    "cross-env": "^5.1.4",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-flowtype": "^2.46.3",
-    "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "flow-bin": "^0.71.0",
-    "mocha": "^5.1.1",
+    "@types/chai": "^4.2.3",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
     "promises-aplus-tests": "^2.1.2",
-    "rollup": "^0.58.2",
-    "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-uglify": "^3.0.0"
+    "rollup": "^1.21.4",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
   }
 }

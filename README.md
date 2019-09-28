@@ -5,9 +5,8 @@ write a promise polyfill.
 
 ## 工程概述
 - 使用 [Rollup](https://rollupjs.org) 进行 umd 模块打包 
-- 使用 [Flow](https://flow.org) 进行代码类型检查
-- 使用 [Eslint](http://eslint.cn/) 进行 JavaScript 代码风格检查
-- 使用 [Jest](https://facebook.github.io/jest/zh-Hans/) 进行单元测试 
+- 使用 [TypeScript](https://www.typescriptlang.org) 开发
+- 使用 [Tslint](https://palantir.github.io/tslint/) 进行代码风格检查
 
 ## 参考
 - Promise 实现规范: [Promises/A+](https://promisesaplus.com/)
