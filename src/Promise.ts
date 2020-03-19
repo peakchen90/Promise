@@ -20,7 +20,7 @@ export default class Promise {
       promises.forEach((promise, index) => {
         promise.then((val) => {
           results[index] = val;
-          if (results.length === promises.length) {
+          if (Object.keys(results).length === promises.length) {
             _resolve(results);
           }
         }).catch((err) => {
