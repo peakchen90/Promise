@@ -1,32 +1,88 @@
 import {OnFulfilled, OnRejected, PromiseFn, PromiseState} from './types';
 
 export default class Promise {
-  static resolve() {
-    //
+  static resolve(value?: any) {
+    return new Promise(_resolve => {
+      _resolve(value);
+    })
   }
 
-  static reject() {
-    //
+  static reject(reason?: any) {
+    return new Promise((_resolve, _reject) => {
+      _reject(reason);
+    })
   }
 
-  static all() {
-    //
+  static all(promises: Promise[]) {
+    const results: any[] = [];
+
+    return new Promise((_resolve, _reject) => {
+      promises.forEach((promise, index) => {
+        promise.then((val) => {
+          results[index] = val;
+          if (results.length === promises.length) {
+            _resolve(results);
+          }
+        }).catch((err) => {
+          _reject(err);
+        })
+      });
+    })
   }
 
-  static race() {
-    //
+  static race(promises: Promise[]) {
+    return new Promise((_resolve, _reject) => {
+      promises.forEach((promise) => {
+        promise.then((val) => {
+          _resolve(val);
+        }).catch((err) => {
+          _reject(err);
+        })
+      });
+    })
   }
 
-  private value: any;
-  private state: PromiseState;
+  value: any;
+  state: PromiseState;
+  private _resolve: OnFulfilled;
+  private _reject: OnRejected;
+  private _resolvedCallbacks: OnFulfilled[];
+  private _rejectedCallbacks: OnRejected[];
 
   constructor(fn: PromiseFn) {
     this.value = undefined;
     this.state = PromiseState.PENDING;
+    this._resolvedCallbacks = [];
+    this._rejectedCallbacks = [];
+
+    this._resolve = (value: any) => {
+      if (value instanceof Promise) {
+        value.then(this._resolve, this._reject);
+      } else {
+        setTimeout(() => {
+          if (this.state === PromiseState.PENDING) {
+            this.state = PromiseState.FULFILLED;
+            this.value = value;
+            this._resolvedCallbacks.forEach(cb => cb());
+          }
+        });
+      }
+    };
+
+    this._reject = (reason: any) => {
+      setTimeout(() => {
+        if (this.state === PromiseState.PENDING) {
+          this.state = PromiseState.REJECTED;
+          this.value = reason;
+          this._rejectedCallbacks.forEach(cb => cb())
+        }
+      })
+    };
+
     try {
-      fn(this.resolve, this.reject);
+      fn(this._resolve, this._reject);
     } catch (e) {
-      this.reject(e);
+      this._reject(e);
     }
   }
 
@@ -36,7 +92,9 @@ export default class Promise {
    * @param onRejected
    * @see https://promisesaplus.com/#the-then-method
    */
-  then(onFulfilled?: OnFulfilled, onRejected?: OnRejected) {
+  then(onFulfilled?: OnFulfilled, onRejected?: OnRejected): Promise {
+    let promise: Promise;
+
     if (typeof onFulfilled !== 'function') {
       onFulfilled = (value) => value;
     }
@@ -47,63 +105,107 @@ export default class Promise {
     }
 
     if (this.state === PromiseState.FULFILLED) {
+      promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            let x = (onFulfilled as OnFulfilled)(this.value);
+            resolutionProcedure(promise, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        })
+      });
+    } else if (this.state === PromiseState.REJECTED) {
+      promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            let x = (onRejected as OnRejected)(this.value);
+            resolutionProcedure(promise, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        })
+      });
+    } else {
+      promise = new Promise((resolve, reject) => {
+        this._resolvedCallbacks.push(() => {
+          try {
+            let x = (onFulfilled as OnFulfilled)(this.value);
+            resolutionProcedure(promise, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
 
+        this._rejectedCallbacks.push(() => {
+          try {
+            let x = (onRejected as OnRejected)(this.value);
+            resolutionProcedure(promise, x, resolve, reject);
+          } catch (e) {
+            reject(e)
+          }
+        })
+      });
     }
+
+    return promise;
   }
 
-  catch() {
-    //
+  catch(onRejected?: OnRejected) {
+    return this.then(undefined, onRejected);
   }
 
   finally() {
     //
   }
+}
 
-  private resolve(value: any) {
-    if (value instanceof Promise) {
-      return value.then(this.resolve, this.reject);
+/**
+ * #2.3 resolution procedure
+ * @see https://promisesaplus.com/#the-promise-resolution-procedure
+ */
+function resolutionProcedure(promise: Promise, x: any, resolve: OnFulfilled, reject: OnRejected) {
+  // #2.3.1
+  if (promise === x) {
+    reject(new TypeError('Error'));
+    return
+  }
+
+  if (x instanceof Promise) {
+    if (x.state === PromiseState.PENDING) {
+      x.then((value) => {
+        resolutionProcedure(promise, value, resolve, reject);
+      }, reject);
+    } else {
+      x.then(resolve, reject);
     }
+    return;
+  }
 
-    setTimeout(() => {
-      if (this.state === PromiseState.PENDING) {
-        this.state = PromiseState.FULFILLED;
-        this.value = value;
+  let called = false;
+
+  if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+    try {
+      let then = x.then;
+      if (typeof then === 'function') {
+        then.call(x, (y: any) => {
+          if (called) return;
+          called = true;
+          resolutionProcedure(promise, y, resolve, reject)
+        }, (e: any) => {
+          if (called) return;
+          called = true;
+          reject(e);
+        });
+      } else {
+        resolve(x);
       }
-    });
-  }
-
-  private reject(reason: any) {
-    //
-  }
-
-  /**
-   * #2.3 resolution procedure
-   * @see https://promisesaplus.com/#the-promise-resolution-procedure
-   */
-  private resolutionProcedure(promise, x) {
-    // #2.3.1
-    if (promise === x) {
-      throw new TypeError('Error');
+    } catch (e) {
+      if (called) return;
+      called = true;
+      reject(e);
     }
-
-    if (x instanceof Promise) {
-      if (x.state === PromiseState.PENDING) {
-        x.then((value) => {
-          this.resolutionProcedure(promise, value);
-        }, this.reject);
-      }
-    }
+  } else {
+    resolve(x);
   }
-}
-
-function resolve() {
-  
-}
-
-function reject() {
-  
-}
-
-function resolutionProcedure() {
-  
 }
