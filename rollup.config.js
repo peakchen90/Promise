@@ -4,7 +4,7 @@ const typescript = require('rollup-plugin-typescript');
 const config = {
   input: 'src/index.ts',
   output: {
-    file: 'lib/promise.js',
+    file: 'lib/Promise.js',
     format: 'umd',
     name: 'Promise',
     sourcemap: true
