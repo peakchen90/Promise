@@ -2,6 +2,9 @@ import {OnFulfilled, OnRejected, PromiseFn, PromiseState} from './types';
 
 export default class Promise {
   static resolve(value?: any) {
+    if (value instanceof Promise) {
+      return value;
+    }
     return new Promise(_resolve => {
       _resolve(value);
     })
@@ -15,17 +18,20 @@ export default class Promise {
 
   static all(promises: Promise[]) {
     const results: any[] = [];
+    const len = promises.length;
+    let count = 0;
 
     return new Promise((_resolve, _reject) => {
       promises.forEach((promise, index) => {
-        promise.then((val) => {
+        Promise.resolve(promise).then((val) => {
+          count++;
           results[index] = val;
-          if (Object.keys(results).length === promises.length) {
+          if (count === len) {
             _resolve(results);
           }
-        }).catch((err) => {
-          _reject(err);
-        })
+        }, (err) => {
+          _reject(err)
+        });
       });
     })
   }
@@ -33,9 +39,9 @@ export default class Promise {
   static race(promises: Promise[]) {
     return new Promise((_resolve, _reject) => {
       promises.forEach((promise) => {
-        promise.then((val) => {
+        Promise.resolve(promise).then((val) => {
           _resolve(val);
-        }).catch((err) => {
+        }, (err) => {
           _reject(err);
         })
       });
