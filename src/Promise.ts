@@ -161,8 +161,14 @@ export default class Promise {
     return this.then(undefined, onRejected);
   }
 
-  finally() {
-    //
+  finally(callback: () => void) {
+    return this.then((val) => {
+      return Promise.resolve(callback()).then(() => val);
+    }, (reason) => {
+      return Promise.resolve(callback()).then(() => {
+        throw reason;
+      })
+    })
   }
 }
 
